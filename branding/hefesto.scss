@@ -1,0 +1,6 @@
+// Personalizacion del tema nativo Boost; no modifica Moodle core.
+$hefesto-orange: #b94720;
+.navbar { border-bottom: 3px solid $hefesto-orange; }
+.btn-primary { border-radius: .55rem; }
+.card { border-radius: .75rem; }
+#page-footer { border-top: 2px solid $hefesto-orange; }

@@ -1,0 +1,43 @@
+name: hefesto-academia
+x-moodle: &moodle
+  build: .
+  image: hefesto-academia-moodle:5.3
+  restart: unless-stopped
+  environment: &environment
+    MOODLE_URL: ${MOODLE_URL:?Configura URL publica HTTPS}
+    DB_HOST: ${DB_HOST:?Configura host PostgreSQL directo}
+    DB_PORT: "5432"
+    DB_NAME: ${DB_NAME:-postgres}
+    DB_USER: ${DB_USER:-moodle_app}
+    DB_PASSWORD: ${DB_PASSWORD:?Configura password PostgreSQL}
+    DB_SSL: ${DB_SSL:-require}
+    PGSSLROOTCERT: /etc/ssl/certs/supabase-ca.crt
+    MOODLE_BEHIND_PROXY: "1"
+  volumes:
+    - moodledata:/var/moodledata
+    - ./certs:/etc/ssl/certs/custom:ro
+services:
+  web:
+    <<: *moodle
+    environment:
+      <<: *environment
+      PGSSLROOTCERT: /etc/ssl/certs/custom/supabase-ca.crt
+    expose:
+      - "80"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1/healthz.txt"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  cron:
+    <<: *moodle
+    environment:
+      <<: *environment
+      PGSSLROOTCERT: /etc/ssl/certs/custom/supabase-ca.crt
+    user: www-data
+    command: ["/opt/hefesto/cron.sh"]
+    depends_on:
+      web:
+        condition: service_healthy
+volumes:
+  moodledata:
