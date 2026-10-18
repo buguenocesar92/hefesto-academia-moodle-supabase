@@ -40,10 +40,15 @@ dominio al servicio `web` por la red interna; no publiques el puerto 80 fuera de
 Variables de runtime obligatorias del recurso Docker Compose:
 
 - `MOODLE_URL` — URL publica HTTPS del aula (ej. `https://academia.tu-dominio.cl`).
-- `DB_HOST`, `DB_PORT` (default `5432`), `DB_USER`, `DB_PASSWORD` — conexion directa al Postgres dedicado (proyecto Supabase separado para esta academia).
-- `DB_NAME` — nombre de la base (default `postgres`). Cada academia usa una base propia (`mvp_<slug>`) en el mismo Postgres compartido para no mezclarse con otras apps.
-- `DB_SSLMODE` — `require` (default), `verify-full`, `allow`, `prefer` o `disable`. Recomendado `verify-full` con la CA del proyecto en `./certs/supabase-ca.crt` montada en `/etc/ssl/certs/custom/supabase-ca.crt`. Los valores `disable`/`allow`/`prefer` solo se aceptan si ademas se define `HEFESTO_ALLOW_INSECURE_DB=1` (opt-in explicito para Postgres interno sin TLS; no recomendado en produccion).
+- `DB_HOST`, `DB_USER`, `DB_PASSWORD` — conexion directa al Postgres compartido. El puerto esta fijo en `5432` y no se puede cambiar desde Coolify: si el Postgres compartido escucha en otro puerto, usa un sidecar/proxy.
+- `DB_NAME` — nombre de la base (default `postgres`). Cada academia usa una base propia (`mvp_<slug>`) en el Postgres compartido para no mezclarse con otras apps.
+- `DB_SSLMODE` — `require` (default), `verify-full`, `allow`, `prefer` o `disable`. Recomendado `verify-full` con la CA del proyecto en `./certs/supabase-ca.crt` montada en `/etc/ssl/certs/custom/supabase-ca.crt`. Los valores `disable`/`allow`/`prefer` solo se aceptan si ademas se define `HEFESTO_ALLOW_INSECURE_DB=1` (opt-in explicito para Postgres interno sin TLS; no recomendado en produccion). Por retrocompatibilidad, si solo esta `DB_SSL` en `.env` se usa como si fuera `DB_SSLMODE` (su valor antiguo era `require`/`verify-full`).
 - `MOODLE_BEHIND_PROXY=1` — ya esta fijo en el compose; Moodle detecta el proxy y reescribe a HTTPS.
+
+Antes del primer despliegue (operativo):
+
+- **Crea el esquema `moodle` y el rol `moodle_app` antes de levantar el servicio.** Conectado como administrador a la base `mvp_<slug>` del Postgres compartido, ejecuta `sql/01-supabase.sql` reemplazando `REEMPLAZAR_PASSWORD_LARGO_UNICO` por uno aleatorio (32+ caracteres). El preflight falla si no existen ambos: ver `scripts/preflight.php:24-25`.
+- **Verifica la version de PostgreSQL.** El preflight exige PostgreSQL 17 o superior (`scripts/preflight.php:22-23`). El Postgres compartido de Supabase self-hosted trae 15 por defecto: si es asi, actualiza por la via soportada o crea un Postgres dedicado 17+. Confirma en SQL Editor con `SHOW server_version;` (referencia en `docs/SUPABASE.md`).
 
 El script `scripts/coolify-check.sh` valida que el `compose.yaml` cumple las reglas
 de Coolify MVP Hefesto (sin `name:` fijo en raiz, sin `container_name`/`ports` en
