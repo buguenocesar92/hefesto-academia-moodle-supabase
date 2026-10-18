@@ -42,7 +42,7 @@ Variables de runtime obligatorias del recurso Docker Compose:
 - `MOODLE_URL` — URL publica HTTPS del aula (ej. `https://academia.tu-dominio.cl`).
 - `DB_HOST`, `DB_PORT` (default `5432`), `DB_USER`, `DB_PASSWORD` — conexion directa al Postgres dedicado (proyecto Supabase separado para esta academia).
 - `DB_NAME` — nombre de la base (default `postgres`). Cada academia usa una base propia (`mvp_<slug>`) en el mismo Postgres compartido para no mezclarse con otras apps.
-- `DB_SSLMODE` — `require` (default), `verify-full`, `allow`, `prefer` o `disable`. Recomendado `verify-full` con la CA del proyecto en `./certs/supabase-ca.crt` montada en `/etc/ssl/certs/custom/supabase-ca.crt`. `disable` solo se admite para Postgres interno sin TLS y NO se recomienda en produccion.
+- `DB_SSLMODE` — `require` (default), `verify-full`, `allow`, `prefer` o `disable`. Recomendado `verify-full` con la CA del proyecto en `./certs/supabase-ca.crt` montada en `/etc/ssl/certs/custom/supabase-ca.crt`. Los valores `disable`/`allow`/`prefer` solo se aceptan si ademas se define `HEFESTO_ALLOW_INSECURE_DB=1` (opt-in explicito para Postgres interno sin TLS; no recomendado en produccion).
 - `MOODLE_BEHIND_PROXY=1` — ya esta fijo en el compose; Moodle detecta el proxy y reescribe a HTTPS.
 
 El script `scripts/coolify-check.sh` valida que el `compose.yaml` cumple las reglas

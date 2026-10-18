@@ -145,7 +145,9 @@ while IFS= read -r svc; do
         esac
         case "$bind_src" in
             /*)
-                if [[ "$bind_src" != "$REPO_ROOT"* && "$bind_src" != "/etc/ssl/certs/custom" ]]; then
+                # Anclar el sufijo: REPO_ROOT o REPO_ROOT/...; idem para /etc/ssl/certs/custom.
+                if [[ "$bind_src" != "$REPO_ROOT" && "$bind_src" != "$REPO_ROOT"/* \
+                    && "$bind_src" != "/etc/ssl/certs/custom" && "$bind_src" != "/etc/ssl/certs/custom/"* ]]; then
                     note "regla1: bind_fuera_repo: $svc: $bind_src"
                 fi
                 ;;

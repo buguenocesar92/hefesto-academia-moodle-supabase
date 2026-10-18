@@ -17,8 +17,11 @@ $CFG->dbuser = hefesto_env('DB_USER');
 $CFG->dbpass = hefesto_env('DB_PASSWORD');
 $CFG->prefix = 'mdl_';
 $ssl = getenv('DB_SSLMODE') ?: 'require';
-if (!in_array($ssl, ['disable', 'allow', 'prefer', 'require', 'verify-full'], true)) {
-    throw new RuntimeException('DB_SSLMODE debe ser disable, allow, prefer, require o verify-full');
+$insecure_modes = ['disable', 'allow', 'prefer'];
+if (!in_array($ssl, ['require', 'verify-full'], true)) {
+    if (!in_array($ssl, $insecure_modes, true) || getenv('HEFESTO_ALLOW_INSECURE_DB') !== '1') {
+        throw new RuntimeException('DB_SSLMODE debe ser require o verify-full; disable/allow/prefer requieren HEFESTO_ALLOW_INSECURE_DB=1');
+    }
 }
 $CFG->dboptions = ['dbpersist' => false, 'dbsocket' => false, 'dbport' => 5432,
     'dbschema' => 'moodle', 'ssl' => $ssl];
