@@ -31,3 +31,21 @@ No basta subir el ZIP a WordPress, Odoo o Sites: Moodle necesita un servidor PHP
 Implementacion inicial + mensualidad por hosting, soporte, respaldos y actualizaciones. Definir limites de almacenamiento, alumnos activos y soporte en contrato. Cursos, matriculas y cobro son operacion del cliente. Moodle libre no significa infraestructura ni mantenimiento gratis.
 
 Moodle se distribuye bajo GPLv3 o posterior. Esta configuracion se entrega bajo MIT (LICENSE); respeta licencias de Moodle y de cada plugin. Ninguna licencia Enterprise de Odoo se incluye.
+
+## Despliegue en Coolify (MVP Hefesto)
+
+Rama `coolify`, build pack Docker Compose. Coolify termina TLS con su Traefik y enruta el
+dominio al servicio `web` por la red interna; no publiques el puerto 80 fuera de Traefik.
+
+Variables de runtime obligatorias del recurso Docker Compose:
+
+- `MOODLE_URL` — URL publica HTTPS del aula (ej. `https://academia.tu-dominio.cl`).
+- `DB_HOST`, `DB_PORT` (default `5432`), `DB_USER`, `DB_PASSWORD` — conexion directa al Postgres dedicado (proyecto Supabase separado para esta academia).
+- `DB_NAME` — nombre de la base (default `postgres`). Cada academia usa una base propia (`mvp_<slug>`) en el mismo Postgres compartido para no mezclarse con otras apps.
+- `DB_SSLMODE` — `require` (default), `verify-full`, `allow`, `prefer` o `disable`. Recomendado `verify-full` con la CA del proyecto en `./certs/supabase-ca.crt` montada en `/etc/ssl/certs/custom/supabase-ca.crt`. `disable` solo se admite para Postgres interno sin TLS y NO se recomienda en produccion.
+- `MOODLE_BEHIND_PROXY=1` — ya esta fijo en el compose; Moodle detecta el proxy y reescribe a HTTPS.
+
+El script `scripts/coolify-check.sh` valida que el `compose.yaml` cumple las reglas
+de Coolify MVP Hefesto (sin `name:` fijo en raiz, sin `container_name`/`ports` en
+servicios sin profiles, y que `DB_SSLMODE`/`DB_NAME` llegan al render). Detalle
+operativo en [docs/COOLIFY.md](docs/COOLIFY.md).

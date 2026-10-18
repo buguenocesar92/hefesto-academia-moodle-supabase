@@ -6,7 +6,7 @@ Usa un proyecto dedicado para esta academia. Ejecuta el SQL provisto como admini
 
 Este paquete soporta conexion directa. El host directo puede requerir IPv6 o el complemento IPv4 de Supabase: verificar red del VPS antes de comprar/desplegar. No cambiar a transaction pooler 6543. Session pooler 5432 requiere adaptar y probar opciones de sesion del driver Moodle y esta fuera de la configuracion entregada.
 
-SSL: require cifra el trafico, pero no verifica identidad del servidor. Recomendado en produccion: descargar CA del proyecto, guardarla en certs/supabase-ca.crt y usar DB_SSL=verify-full. En Coolify montar el certificado en esa misma ruta en ambos contenedores. No desactivar SSL para resolver errores.
+SSL: require cifra el trafico, pero no verifica identidad del servidor. Recomendado en produccion: descargar CA del proyecto, guardarla en certs/supabase-ca.crt y usar DB_SSLMODE=verify-full. En Coolify montar el certificado en esa misma ruta en ambos contenedores. No desactivar SSL para resolver errores.
 
 No exponer el esquema moodle en Data API ni permitir anon/authenticated. Moodle aplica sus roles y permisos: no agregar RLS a sus tablas sin un proyecto especifico de compatibilidad. No modificar tablas Moodle desde frontend Supabase, Odoo o n8n; usar API Moodle autorizada.
 

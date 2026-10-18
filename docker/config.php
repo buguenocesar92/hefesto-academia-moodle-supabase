@@ -16,9 +16,9 @@ $CFG->dbname = getenv('DB_NAME') ?: 'postgres';
 $CFG->dbuser = hefesto_env('DB_USER');
 $CFG->dbpass = hefesto_env('DB_PASSWORD');
 $CFG->prefix = 'mdl_';
-$ssl = getenv('DB_SSL') ?: 'require';
-if (!in_array($ssl, ['require', 'verify-full'], true)) {
-    throw new RuntimeException('DB_SSL debe ser require o verify-full');
+$ssl = getenv('DB_SSLMODE') ?: 'require';
+if (!in_array($ssl, ['disable', 'allow', 'prefer', 'require', 'verify-full'], true)) {
+    throw new RuntimeException('DB_SSLMODE debe ser disable, allow, prefer, require o verify-full');
 }
 $CFG->dboptions = ['dbpersist' => false, 'dbsocket' => false, 'dbport' => 5432,
     'dbschema' => 'moodle', 'ssl' => $ssl];

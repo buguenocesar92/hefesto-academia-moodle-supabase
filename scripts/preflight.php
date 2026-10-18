@@ -10,8 +10,8 @@ foreach (['host'=>'DB_HOST','dbname'=>'DB_NAME','user'=>'DB_USER','password'=>'D
     if (!$value || str_contains($value, 'REEMPLAZAR')) fail('Falta configurar: ' . $env);
     $parts[] = $key . '=' . quoted($value);
 }
-$ssl = getenv('DB_SSL') ?: 'require';
-if (!in_array($ssl, ['require','verify-full'], true)) fail('SSL no permitido');
+$ssl = getenv('DB_SSLMODE') ?: 'require';
+if (!in_array($ssl, ['disable','allow','prefer','require','verify-full'], true)) fail('DB_SSLMODE debe ser disable, allow, prefer, require o verify-full');
 $conn = @pg_connect(implode(' ', $parts) . ' port=5432 connect_timeout=15 sslmode=' . $ssl);
 if (!$conn) fail('No se pudo conectar. Revisar host directo, red, CA y credenciales en servidor.');
 $version = (int)pg_fetch_result(pg_query($conn, 'SHOW server_version_num'), 0, 0);
