@@ -9,7 +9,12 @@ x-moodle: &moodle
     DB_NAME: ${DB_NAME:-postgres}
     DB_USER: ${DB_USER:-moodle_app}
     DB_PASSWORD: ${DB_PASSWORD:?Configura password PostgreSQL}
-    DB_SSLMODE: ${DB_SSLMODE:-require}
+    # DB_SSLMODE tiene precedencia; DB_SSL se conserva por compatibilidad
+    # con .env antiguos cuyo nombre era DB_SSL.
+    DB_SSLMODE: ${DB_SSLMODE:-${DB_SSL:-require}}
+    # Opt-in explicito para sslmode inseguros (disable/allow/prefer). Por
+    # defecto 0: solo require/verify-full pasan sin aviso.
+    HEFESTO_ALLOW_INSECURE_DB: ${HEFESTO_ALLOW_INSECURE_DB:-0}
     PGSSLROOTCERT: /etc/ssl/certs/supabase-ca.crt
     MOODLE_BEHIND_PROXY: "1"
   volumes:

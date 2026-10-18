@@ -25,8 +25,7 @@ if [ ! -f "$COMPOSE_FILE" ]; then
     exit 1
 fi
 
-TMP="${TMPDIR:-/tmp}/coolify-check.$$"
-mkdir -p "$TMP"
+TMP="$(mktemp -d "${TMPDIR:-/tmp}/coolify-check.XXXXXX")"
 trap 'rm -rf "$TMP"' EXIT
 
 # Extraer los nombres de variable que aparecen en el compose como ${VAR},
@@ -50,6 +49,7 @@ make_env() {
     if [ "$APP_KIND" = "supabase-pg" ]; then
         printf 'DB_SSLMODE=disable\n' >> "$out"
         printf 'DB_NAME=mvp_prueba\n' >> "$out"
+        printf 'HEFESTO_ALLOW_INSECURE_DB=1\n' >> "$out"
     fi
 }
 
@@ -129,7 +129,7 @@ while IFS= read -r svc; do
             note "regla1: $k: $svc: host"
         fi
     done
-    if jq -e ".services.\"$svc\".security_opt | type==\"array\" and any(. == \"unconfined\")" "$RENDER" >/dev/null 2>&1; then
+    if jq -e ".services.\"$svc\".security_opt | type==\"array\" and any(.[]; tostring | test(\"unconfined\"))" "$RENDER" >/dev/null 2>&1; then
         note "regla1: security_opt: $svc: unconfined"
     fi
 
@@ -145,9 +145,10 @@ while IFS= read -r svc; do
         esac
         case "$bind_src" in
             /*)
-                # Anclar el sufijo: REPO_ROOT o REPO_ROOT/...; idem para /etc/ssl/certs/custom.
-                if [[ "$bind_src" != "$REPO_ROOT" && "$bind_src" != "$REPO_ROOT"/* \
-                    && "$bind_src" != "/etc/ssl/certs/custom" && "$bind_src" != "/etc/ssl/certs/custom/"* ]]; then
+                # Aceptar solo rutas bajo REPO_ROOT. Cualquier ruta absoluta
+                # fuera del repo queda prohibida (incluido /etc/ssl/certs/custom,
+                # que es destino dentro del contenedor, no origen valido en host).
+                if [[ "$bind_src" != "$REPO_ROOT" && "$bind_src" != "$REPO_ROOT"/* ]]; then
                     note "regla1: bind_fuera_repo: $svc: $bind_src"
                 fi
                 ;;
@@ -163,6 +164,13 @@ if [ "$APP_KIND" = "supabase-pg" ]; then
     fi
     if ! grep -q '"disable"' "$RENDER"; then
         note "supabase_pg: sslmode: render no contiene 'disable' (DB_SSLMODE=disable no llega al render)"
+    fi
+    # El servicio web debe poder ver HEFESTO_ALLOW_INSECURE_DB para aceptar
+    # los sslmode inseguros (disable/allow/prefer). Si no llega, Moodle
+    # lanza RuntimeException en arranque y queda 503.
+    web_env=$(jq -r '.services."web".environment // {} | to_entries | map("\(.key)=\(.value)") | join("\n")' "$RENDER" 2>/dev/null || true)
+    if ! printf '%s\n' "$web_env" | grep -q '^HEFESTO_ALLOW_INSECURE_DB='; then
+        note "supabase_pg: allow_insecure_db: web no recibe HEFESTO_ALLOW_INSECURE_DB en el render"
     fi
 fi
 

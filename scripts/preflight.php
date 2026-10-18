@@ -10,7 +10,7 @@ foreach (['host'=>'DB_HOST','dbname'=>'DB_NAME','user'=>'DB_USER','password'=>'D
     if (!$value || str_contains($value, 'REEMPLAZAR')) fail('Falta configurar: ' . $env);
     $parts[] = $key . '=' . quoted($value);
 }
-$ssl = getenv('DB_SSLMODE') ?: 'require';
+$ssl = getenv('DB_SSLMODE') ?: (getenv('DB_SSL') ?: 'require');
 if (!in_array($ssl, ['require','verify-full'], true)) {
     $insecure = ['disable','allow','prefer'];
     if (!in_array($ssl, $insecure, true) || getenv('HEFESTO_ALLOW_INSECURE_DB') !== '1') {
