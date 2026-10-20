@@ -1,7 +1,7 @@
 # Despliegue en Coolify
 
 1. Sube el contenido a un repositorio privado propio sin .env. Crea recurso Docker Compose desde ese repositorio, archivo compose.yaml. Build requiere acceso a imagen PHP y descarga oficial Moodle.
-2. Configura MOODLE_URL, DB_HOST, DB_NAME, DB_USER, DB_PASSWORD y DB_SSL como variables secretas/runtime del recurso. No variables de build.
+2. Configura MOODLE_URL, DB_HOST, DB_NAME, DB_USER, DB_PASSWORD y DB_SSLMODE como variables secretas/runtime del recurso. No variables de build.
 3. Asigna https://academia.tu-dominio.cl al servicio web, puerto interno 80. DNS hacia servidor. Coolify termina HTTPS y reenvia HTTP interno; MOODLE_BEHIND_PROXY=1 ya esta configurado.
 4. Cron no lleva dominio ni puerto publicado. Ambos servicios comparten el volumen moodledata. Conservar nombre del proyecto y volumen entre despliegues.
 5. Montaje certs: el repositorio incluye directorio vacio documentado. Para verify-full suministra el archivo CA en el host/montaje persistente de Coolify y apunta ambos servicios a /etc/ssl/certs/custom/supabase-ca.crt.
