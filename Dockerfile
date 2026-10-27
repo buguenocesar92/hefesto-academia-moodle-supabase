@@ -1,4 +1,4 @@
-FROM php:8.3-apache-bookworm
+FROM php:8.3-apache-bookworm@sha256:b79a53c3fb1dd4b9f350a8d99d84951512b6c21044e61bbecfee8af030b3722e
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl libpq-dev libicu-dev libzip-dev libpng-dev libjpeg62-turbo-dev \
     libfreetype6-dev libxml2-dev libonig-dev libsodium-dev \

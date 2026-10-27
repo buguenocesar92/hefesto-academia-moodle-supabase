@@ -43,5 +43,19 @@ services:
     depends_on:
       web:
         condition: service_healthy
+  dbtools:
+    image: postgres:17-alpine@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24
+    profiles: [tools]
+    environment:
+      PGHOST: ${DB_HOST:?Configura host PostgreSQL directo}
+      PGPORT: "5432"
+      PGDATABASE: ${DB_NAME:-postgres}
+      PGUSER: ${DB_USER:-moodle_app}
+      PGPASSWORD: ${DB_PASSWORD:?Configura password PostgreSQL}
+      PGSSLMODE: ${DB_SSLMODE:-require}
+      PGSSLROOTCERT: /etc/ssl/certs/custom/supabase-ca.crt
+    volumes:
+      - ./certs:/etc/ssl/certs/custom:ro
+
 volumes:
   moodledata:

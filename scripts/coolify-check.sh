@@ -42,14 +42,16 @@ make_env() {
     while IFS= read -r v; do
         [ -z "$v" ] && continue
         case "$v" in
-            *HOST*|*URL*|*DOMAIN*) printf '%s=https://ejemplo.invalid\n' "$v" >> "$out" ;;
-            *) printf '%s=x1234567890abcdefghij\n' "$v" >> "$out" ;;
-        esac
+            *HOST*|*URL*|*DOMAIN*) printf '%s=https://ejemplo.invalid\n' "$v" ;;
+            *) printf '%s=x1234567890abcdefghij\n' "$v" ;;
+        esac >> "$out"
     done < <(extract_vars "$COMPOSE_FILE")
     if [ "$APP_KIND" = "supabase-pg" ]; then
-        printf 'DB_SSLMODE=disable\n' >> "$out"
-        printf 'DB_NAME=mvp_prueba\n' >> "$out"
-        printf 'HEFESTO_ALLOW_INSECURE_DB=1\n' >> "$out"
+        {
+            printf 'DB_SSLMODE=disable\n'
+            printf 'DB_NAME=mvp_prueba\n'
+            printf 'HEFESTO_ALLOW_INSECURE_DB=1\n'
+        } >> "$out"
     fi
 }
 

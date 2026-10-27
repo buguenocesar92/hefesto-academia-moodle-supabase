@@ -4,3 +4,9 @@
 backups/
 certs/*.crt
 *.sql.local
+
+# Contrato de respaldo (docs/CONTRATO-RESPALDO.md)
+logs/
+restore-report.json
+secrets/
+.superpowers/
