@@ -45,6 +45,13 @@ COPY docker/php.ini /usr/local/etc/php/conf.d/hefesto.ini
 # Apache reciclados cada 100 peticiones.
 COPY docker/99-php2shell-hardening.ini /usr/local/etc/php/conf.d/99-php2shell-hardening.ini
 COPY docker/zz-php2shell-apache.conf /etc/apache2/conf-available/zz-php2shell-hardening.conf
+
+# Mitigacion CVE-2026-126714 (GHSA-fm2m-fjf5-v3cp): el save handler «files» de
+# ext-session reescribe el archivo de sesion sin truncarlo; una escritura
+# interrumpida mezcla sesion nueva y vieja y permite inyectar objetos al
+# deserializar. Se apaga el vector (session.upload_progress) y se endurece el
+# formato de sesion nativo.
+COPY docker/php/99-security-cve-2026-126714.ini /usr/local/etc/php/conf.d/99-security-cve-2026-126714.ini
 COPY docker/config.php /var/www/moodle/config.php
 COPY scripts /opt/hefesto
 COPY branding /opt/branding
