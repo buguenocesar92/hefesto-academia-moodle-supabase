@@ -19,7 +19,9 @@ declare(strict_types=1);
  * QUE COMPRUEBA
  * -------------
  *   1. Que la base de la imagen use una version de PHP PARCHEADA (las
- *      parcheadas son 8.2.35 / 8.3.36 / 8.4.27 / 8.5.12).
+ *      parcheadas de PHP2Shell son 8.2.35 / 8.3.36 / 8.4.27 / 8.5.12, y las
+ *      de CVE-2026-126714, 8.2.36 / 8.3.37 / 8.4.28 / 8.5.13; el minimo de
+ *      esta imagen es 8.3.37).
  *   2. Que el ini de endurecimiento apague `session.upload_progress.enabled`,
  *      que es la via CONFIRMADA de CVE-2026-109619.
  *   3. Que la etapa final del Dockerfile copie el ini a `conf.d` y el archivo de
@@ -31,7 +33,7 @@ declare(strict_types=1);
  * SALE CON CODIGO 0 SI TODO ESTA BIEN, Y CON CODIGO 1 SI ALGO FALLA.
  */
 
-const VERSION_MINIMA = '8.3.36';
+const VERSION_MINIMA = '8.3.37';
 const SERIE = '8.3';
 
 const DOCKERFILE = 'Dockerfile';
